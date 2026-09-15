@@ -1,6 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import ExpenseCategoryCard from './ExpenseCategoryCard';
+import SavingsInfoModal from './SavingsInfoModal';
+import { Home, Tv, Car, ShieldCheck, Info } from 'lucide-react';
 
 export default function AdultCalculator({ onUpdate }: { onUpdate: (income: number, expenses: number) => void }) {
   const [salary, setSalary] = useState<string>('');
@@ -8,6 +10,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
   // Expenses Object (Holds all keys, including dynamic custom ones)
   const [exp, setExp] = useState<Record<string, string>>({});
   const [savingsPercent, setSavingsPercent] = useState<number>(30);
+  const [showSavingsInfo, setShowSavingsInfo] = useState<boolean>(false);
 
   const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
 
@@ -50,12 +53,13 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         </div>
       </div>
 
-      {/* EXPENSE CATEGORIES GRID USING REUSABLE COMPONENT */}
+      {/* EXPENSE CATEGORIES GRID WITH ICONS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <ExpenseCategoryCard 
           title="Home & Living" 
           accentColor="bg-orange-400"
+          icon={Home}
           initialItems={[
             { key: 'rent', label: 'Rent / Amortization' },
             { key: 'elect', label: 'Electricity' },
@@ -70,6 +74,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         <ExpenseCategoryCard 
           title="Subscriptions" 
           accentColor="bg-teal-400"
+          icon={Tv}
           initialItems={[
             { key: 'wifi', label: 'Wi-Fi' },
             { key: 'netflix', label: 'Netflix' },
@@ -84,6 +89,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         <ExpenseCategoryCard 
           title="Transportation" 
           accentColor="bg-blue-400"
+          icon={Car}
           initialItems={[
             { key: 'commute', label: 'Commute Money' },
             { key: 'gas', label: 'Gas' },
@@ -96,6 +102,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         <ExpenseCategoryCard 
           title="Obligations" 
           accentColor="bg-purple-400"
+          icon={ShieldCheck}
           initialItems={[
             { key: 'family', label: 'Money for Family' },
             { key: 'lifeIns', label: 'Life Insurance' },
@@ -108,11 +115,20 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
 
       </div>
 
-      {/* SAVINGS SLIDER BENTO */}
+      {/* SAVINGS SLIDER BENTO WITH INFO MODAL TRIGGER */}
       <div className="bg-teal-500 dark:bg-teal-700 text-white p-6 md:p-8 rounded-[2rem] shadow-xl mt-4 transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
           <div>
-            <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
+              <button 
+                onClick={() => setShowSavingsInfo(true)}
+                className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-800 text-teal-100 hover:text-white transition-colors"
+                aria-label="More information about Mandatory Savings"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </div>
             <p className="text-sm font-bold text-teal-100 mt-1 uppercase tracking-wider">Recommended: 30% of salary</p>
           </div>
           <div className="bg-teal-600 dark:bg-teal-800 px-5 py-2 rounded-2xl">
@@ -136,6 +152,9 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
           </div>
         </div>
       </div>
+
+      {/* RENDER SAVINGS INFO MODAL */}
+      <SavingsInfoModal isOpen={showSavingsInfo} onClose={() => setShowSavingsInfo(false)} />
 
     </div>
   );

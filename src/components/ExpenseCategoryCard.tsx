@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, LucideIcon } from 'lucide-react';
 
 interface ExpenseItem {
   id: string;
@@ -11,6 +11,7 @@ interface ExpenseItem {
 interface ExpenseCategoryCardProps {
   title: string;
   accentColor: string; 
+  icon?: LucideIcon; // Added icon prop
   initialItems: { key: string; label: string }[];
   values: Record<string, string>;
   onChange: (key: string, val: string) => void;
@@ -19,6 +20,7 @@ interface ExpenseCategoryCardProps {
 export default function ExpenseCategoryCard({
   title,
   accentColor,
+  icon: Icon,
   initialItems,
   values,
   onChange
@@ -55,9 +57,16 @@ export default function ExpenseCategoryCard({
   return (
     <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
       <div>
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`w-2 h-6 ${accentColor} rounded-full`}></div>
-          <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">{title}</h4>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className={`w-2 h-6 ${accentColor} rounded-full`}></div>
+            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">{title}</h4>
+          </div>
+          {Icon && (
+            <div className="p-2 rounded-xl  dark:bg-zinc-700/50 text-zinc-600 dark:text-zinc-300">
+              <Icon className="w-5 h-5" />
+            </div>        
+          )}
         </div>
         
         <div className="flex flex-col space-y-3">
@@ -87,7 +96,6 @@ export default function ExpenseCategoryCard({
                 placeholder="Expense name"
               />
               
-              {/* Input container made relative so the delete button can overlap the top-right corner */}
               <div className="relative flex-shrink-0">
                 <button 
                   onClick={() => removeCustomExpense(item.id)}

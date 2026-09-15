@@ -1,16 +1,21 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, HelpCircle, Info } from 'lucide-react';
 import Header from '../components/Header';
 import StudentCalculator from '../components/StudentCalculator';
 import AdultCalculator from '../components/AdultCalculator';
+import HowItWorksModal from '../components/HowItWorksModal';
+import TimeInfoModal from '../components/TimeInfoModal';
+import Footer from '../components/Footer';
 
 type Profile = 'Student' | 'Adult' | 'Parent' | 'Custom';
 
 export default function DaydreamHome() {
   const [activeProfile, setActiveProfile] = useState<Profile>('Adult');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showTimeInfo, setShowTimeInfo] = useState(false); // Time to afford info modal state
 
   useEffect(() => {
     if (isDarkMode) {
@@ -60,8 +65,20 @@ export default function DaydreamHome() {
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
+          {/* SUBTLE TRIGGER RIGHT ABOVE DREAM ITEM BENTO */}
+          <div className="col-span-1 lg:col-span-12 flex justify-start">
+            <button
+              onClick={() => setShowHowItWorks(true)}
+              className="inline-flex items-center gap-1.5 text-s font-bold text-zinc-500 hover:text-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 px-3.5 py-1.5 rounded-xl shadow-sm transition-all"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-teal-500" /> 
+              How it works
+            </button>
+          </div>
+
           {/* 2. BENTO BOX: DREAM ITEM ROW */}
           <section className="col-span-1 lg:col-span-12 bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row gap-6 items-center transition-colors duration-300">
+            
             <div className="flex-1 w-full space-y-1">
               <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Your Dream Item</label>
               <input 
@@ -88,9 +105,18 @@ export default function DaydreamHome() {
               </div>
             </div>
             
-            {/* Quick Result Bento Tile - FLAT TEAL */}
-            <div className="w-full md:w-auto bg-teal-500 dark:bg-teal-600 text-white p-6 rounded-3xl flex flex-col justify-center items-center md:items-start min-w-[200px] shadow-lg transition-colors duration-300">
-              <span className="text-sm font-bold uppercase tracking-widest opacity-90">Time to Afford</span>
+            {/* Quick Result Bento Tile with Info Button */}
+            <div className="w-full md:w-auto bg-teal-500 dark:bg-teal-600 text-white p-6 rounded-3xl flex flex-col justify-center items-center md:items-start min-w-[200px] shadow-lg transition-colors duration-300 relative">
+              <div className="flex items-center justify-between w-full gap-2">
+                <span className="text-sm font-bold uppercase tracking-widest opacity-90">Time to Afford</span>
+                <button 
+                  onClick={() => setShowTimeInfo(true)}
+                  className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 text-teal-100 hover:text-white transition-colors"
+                  aria-label="More information about Time to Afford"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+              </div>
               <div className="flex items-baseline gap-1 mt-1">
                 <span className="text-4xl md:text-5xl font-black">
                   {numericCost && leftover > 0 
@@ -104,6 +130,7 @@ export default function DaydreamHome() {
                 </span>
               </div>
             </div>
+
           </section>
 
           {/* 3. BENTO BOX: CALCULATOR INPUTS */}
@@ -111,7 +138,7 @@ export default function DaydreamHome() {
             <div className="flex items-center gap-3 mb-8">
               <div className="w-3 h-8 bg-teal-500 rounded-full"></div>
               <h2 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
-                {activeProfile} Profile
+                Your Profile
               </h2>
             </div>
             
@@ -126,7 +153,7 @@ export default function DaydreamHome() {
           {/* 4. RIGHT COLUMN BENTO BOXES */}
           <div className="col-span-1 lg:col-span-4 flex flex-col gap-6">
             
-            {/* BENTO: Financial Summary (Solid Teal Motif) */}
+            {/* BENTO: Financial Summary */}
             <section className="bg-teal-500 dark:bg-teal-700 text-white p-8 rounded-[2rem] shadow-xl transition-colors duration-300">
               <h3 className="text-sm font-bold text-teal-100 uppercase tracking-widest mb-6">Monthly Summary</h3>
               
@@ -169,6 +196,10 @@ export default function DaydreamHome() {
         </div>
       </main>
 
+      {/* RENDER MODALS */}
+      <HowItWorksModal isOpen={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
+      <TimeInfoModal isOpen={showTimeInfo} onClose={() => setShowTimeInfo(false)} />
+
       {/* FLOATING PERPETUAL THEME TOGGLE BUTTON */}
       <button 
         onClick={() => setIsDarkMode(!isDarkMode)}
@@ -178,6 +209,9 @@ export default function DaydreamHome() {
         {isDarkMode ? <Sun className="w-6 h-6 text-orange-400" /> : <Moon className="w-6 h-6 text-teal-400" />}
       </button>
 
+      <Footer/>
+
     </div>
+    
   );
 }
