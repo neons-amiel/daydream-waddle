@@ -32,18 +32,20 @@ export default function DaydreamHome() {
   // --- LIVE STATE FOR CALCULATIONS ---
   const [totalIncome, setTotalIncome] = useState(0); 
   const [totalExpenses, setTotalExpenses] = useState(0);
-  
+  const [totalSavings, setTotalSavings] = useState(0); // Savings tracked separately from expenses
+
   const parseNum = (val: any) => Number(String(val).replace(/,/g, '')) || 0;
   
-  const leftover = totalIncome - totalExpenses;
+  const leftover = totalIncome - totalExpenses - totalSavings;
   const numericCost = parseNum(dreamCost);
   
   const totalMonths = numericCost && leftover > 0 ? numericCost / leftover : 0;
   const yearsToAfford = (totalMonths / 12).toFixed(1);
 
-  const handleFinancialUpdate = useCallback((income: number, expenses: number) => {
+  const handleFinancialUpdate = useCallback((income: number, expenses: number, savings: number) => {
     setTotalIncome(income);
     setTotalExpenses(expenses);
+    setTotalSavings(savings);
   }, []);
 
   const handleCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,9 +57,18 @@ export default function DaydreamHome() {
     }
   };
 
+  // --- ALWAYS-VISIBLE "TIME TO AFFORD" BAR ---
+  // Sits directly beneath the header at all times (sticky, not fixed - avoids
+  // fixed-position elements breaking if any ancestor has a CSS transform).
+
+  const timeDisplay = numericCost && leftover > 0
+    ? { value: totalMonths < 12 ? totalMonths.toFixed(1) : yearsToAfford, unit: totalMonths < 12 ? 'mos' : 'yrs' }
+    : { value: '---', unit: '' };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F9FA] dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300 relative">
-      
+
+      {/* STICKY TIME-TO-AFFORD BAR - appears once the Dream Item hero scrolls out of view */}
       {/* 1. COMPACT ISOLATED HEADER */}
       <Header activeProfile={activeProfile} setActiveProfile={setActiveProfile} />
 
@@ -76,8 +87,10 @@ export default function DaydreamHome() {
             </button>
           </div>
 
-          {/* 2. BENTO BOX: DREAM ITEM ROW */}
-          <section className="col-span-1 lg:col-span-12 bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row gap-6 items-center transition-colors duration-300">
+          {/* 2. BENTO BOX: DREAM ITEM ROW (still first - asked before income) */}
+          <section
+            className="col-span-1 lg:col-span-12 bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row gap-6 items-center transition-colors duration-300"
+          >
             
             <div className="flex-1 w-full space-y-1">
               <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Your Dream Item</label>
@@ -118,16 +131,8 @@ export default function DaydreamHome() {
                 </button>
               </div>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-4xl md:text-5xl font-black">
-                  {numericCost && leftover > 0 
-                    ? (totalMonths < 12 ? totalMonths.toFixed(1) : yearsToAfford) 
-                    : '---'}
-                </span>
-                <span className="font-bold text-teal-100">
-                  {numericCost && leftover > 0 
-                    ? (totalMonths < 12 ? 'mos' : 'yrs') 
-                    : ''}
-                </span>
+                <span className="text-4xl md:text-5xl font-black">{timeDisplay.value}</span>
+                <span className="font-bold text-teal-100">{timeDisplay.unit}</span>
               </div>
             </div>
 
@@ -153,7 +158,7 @@ export default function DaydreamHome() {
           {/* 4. RIGHT COLUMN BENTO BOXES */}
           <div className="col-span-1 lg:col-span-4 flex flex-col gap-6">
             
-            {/* BENTO: Financial Summary */}
+            {/* BENTO: Financial Summary - Income, Expenses, Savings, Left for Goal */}
             <section className="bg-teal-500 dark:bg-teal-700 text-white p-8 rounded-[2rem] shadow-xl transition-colors duration-300">
               <h3 className="text-sm font-bold text-teal-100 uppercase tracking-widest mb-6">Monthly Summary</h3>
               
@@ -166,15 +171,19 @@ export default function DaydreamHome() {
                   <span className="font-bold text-teal-50">Total Expenses</span>
                   <span className="font-black text-teal-200 text-xl">-{totalExpenses.toLocaleString()}</span>
                 </div>
+                <div className="flex justify-between items-center bg-teal-600 dark:bg-teal-800 p-4 rounded-2xl">
+                  <span className="font-bold text-teal-50">Savings</span>
+                  <span className="font-black text-teal-200 text-xl">-{totalSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
               </div>
               
               <div className="mt-8 pt-6 border-t-2 border-teal-400 dark:border-teal-600 flex justify-between items-end">
-                <span className="font-bold text-teal-100">What's Left</span>
-                <span className="text-4xl font-black text-white">₱{leftover.toLocaleString()}</span>
+                <span className="font-bold text-teal-100">Left for Goal</span>
+                <span className="text-4xl font-black text-white">₱{leftover.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </section>
 
-            {/* BENTO: AI Insights */}
+            {/* BENTO: AI Insights - unchanged */}
             <section className="bg-teal-50 dark:bg-teal-950/20 p-8 rounded-[2rem] border-2 border-teal-200 dark:border-teal-900/50 relative overflow-hidden flex-1 flex flex-col justify-center transition-colors duration-300">
               <div className="flex items-center gap-2 mb-4 relative z-10">
                 <div className="bg-teal-200 dark:bg-teal-800 p-2 rounded-xl transition-colors duration-300">

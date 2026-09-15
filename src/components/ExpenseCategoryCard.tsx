@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { Plus, Trash2, LucideIcon } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, LucideIcon } from 'lucide-react';
 
 interface ExpenseItem {
   id: string;
@@ -10,8 +10,8 @@ interface ExpenseItem {
 
 interface ExpenseCategoryCardProps {
   title: string;
-  accentColor: string; 
-  icon?: LucideIcon; // Added icon prop
+  accentColor: string; // now a TEXT color utility class (e.g. "text-orange-400"), applied to the icon
+  icon?: LucideIcon;
   initialItems: { key: string; label: string }[];
   values: Record<string, string>;
   onChange: (key: string, val: string) => void;
@@ -25,8 +25,11 @@ export default function ExpenseCategoryCard({
   values,
   onChange
 }: ExpenseCategoryCardProps) {
+  const [isOpen, setIsOpen] = useState(false); // Collapsed by default (accordion)
   const [customItems, setCustomItems] = useState<ExpenseItem[]>([]);
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
+
+  const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
 
   const handleCustomChange = (id: string, rawVal: string) => {
     const numeric = rawVal.replace(/[^0-9]/g, '');
@@ -54,78 +57,114 @@ export default function ExpenseCategoryCard({
     return numeric === '' ? '' : Number(numeric).toLocaleString('en-US');
   };
 
-  return (
-    <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className={`w-2 h-6 ${accentColor} rounded-full`}></div>
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">{title}</h4>
-          </div>
-          {Icon && (
-            <div className="p-2 rounded-xl  dark:bg-zinc-700/50 text-zinc-600 dark:text-zinc-300">
-              <Icon className="w-5 h-5" />
-            </div>        
-          )}
-        </div>
-        
-        <div className="flex flex-col space-y-3">
-          {/* Default Preset Rows */}
-          {initialItems.map(({ key, label }) => (
-            <div key={key} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50">
-              <label className="text-sm font-bold text-zinc-600 dark:text-zinc-400">{label}</label>
-              <input 
-                type="text" 
-                inputMode="numeric"
-                className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
-                placeholder="0" 
-                value={values[key] || ''} 
-                onChange={(e) => onChange(key, formatInput(e.target.value))}
-              />
-            </div>
-          ))}
+  // --- ACCORDION SUMMARY: item count + running total for the collapsed header ---
+  const presetTotal = initialItems.reduce((acc, { key }) => acc + parseNum(values[key] || ''), 0);
+  const customTotal = Object.values(customValues).reduce((acc, v) => acc + parseNum(v), 0);
+  const categoryTotal = presetTotal + customTotal;
+  const itemCount = initialItems.length + customItems.length;
 
-          {/* User-Added Custom Expense Rows with Corner-Overlapping Delete Button */}
-          {customItems.map((item) => (
-            <div key={item.id} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50 animate-fadeIn gap-3">
-              <input 
-                type="text" 
-                value={item.label}
-                onChange={(e) => updateCustomLabel(item.id, e.target.value)}
-                className="text-sm font-bold text-zinc-800 dark:text-zinc-200 bg-transparent outline-none border-b border-dashed border-zinc-400 focus:border-teal-500 flex-1 min-w-0"
-                placeholder="Expense name"
-              />
-              
-              <div className="relative flex-shrink-0">
-                <button 
-                  onClick={() => removeCustomExpense(item.id)}
-                  className="absolute -top-2.5 -right-2.5 z-10 bg-white dark:bg-zinc-800 text-zinc-400 hover:text-red-500 border border-zinc-200 dark:border-zinc-700 p-1 rounded-full shadow-sm transition-all hover:scale-110"
-                  aria-label="Remove item"
-                  title="Delete expense"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-                <input 
-                  type="text" 
-                  inputMode="numeric"
-                  className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
-                  placeholder="0" 
-                  value={customValues[item.id] || ''}
-                  onChange={(e) => handleCustomChange(item.id, e.target.value)}
-                />
-              </div>
+  return (
+    <div className="bg-zinc-50 dark:bg-zinc-800/40 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800 overflow-hidden transition-colors">
+
+      {/* ACCORDION HEADER - always visible, toggles open/closed */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(prev => !prev)}
+        className="w-full flex items-center justify-between gap-3 p-6 text-left"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Colored icon replaces the old accent pill - saves horizontal space */}
+          {Icon && (
+            <div className="p-2 rounded-xl  dark:bg-zinc-700/50 flex-shrink-0">
+              <Icon className={`w-5 h-5 ${accentColor}`} />
             </div>
-          ))}
+          )}
+          <div className="min-w-0">
+            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100 truncate">{title}</h4>
+            <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mt-0.5">
+              {itemCount} {itemCount === 1 ? 'item' : 'items'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="font-black text-zinc-900 dark:text-white text-lg">
+            ₱{categoryTotal.toLocaleString()}
+          </span>
+          <ChevronDown
+            className={`w-5 h-5 text-zinc-400 transition-transform duration-500 ease-in-out ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </div>
+      </button>
+
+      {/* ACCORDION BODY - animated via grid-template-rows (0fr -> 1fr) + opacity for a smooth ease, not an instant pop */}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="px-6 pb-6">
+            <div className="flex flex-col space-y-3">
+              {/* Default Preset Rows */}
+              {initialItems.map(({ key, label }) => (
+                <div key={key} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50">
+                  <label className="text-sm font-bold text-zinc-600 dark:text-zinc-400">{label}</label>
+                  <input 
+                    type="text" 
+                    inputMode="numeric"
+                    className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
+                    placeholder="0" 
+                    value={values[key] || ''} 
+                    onChange={(e) => onChange(key, formatInput(e.target.value))}
+                  />
+                </div>
+              ))}
+
+              {/* User-Added Custom Expense Rows with Corner-Overlapping Delete Button */}
+              {customItems.map((item) => (
+                <div key={item.id} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50 animate-fadeIn gap-3">
+                  <input 
+                    type="text" 
+                    value={item.label}
+                    onChange={(e) => updateCustomLabel(item.id, e.target.value)}
+                    className="text-sm font-bold text-zinc-800 dark:text-zinc-200 bg-transparent outline-none border-b border-dashed border-zinc-400 focus:border-teal-500 flex-1 min-w-0"
+                    placeholder="Expense name"
+                  />
+                  
+                  <div className="relative flex-shrink-0">
+                    <button 
+                      onClick={() => removeCustomExpense(item.id)}
+                      className="absolute -top-2.5 -right-2.5 z-10 bg-white dark:bg-zinc-800 text-zinc-400 hover:text-red-500 border border-zinc-200 dark:border-zinc-700 p-1 rounded-full shadow-sm transition-all hover:scale-110"
+                      aria-label="Remove item"
+                      title="Delete expense"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                    <input 
+                      type="text" 
+                      inputMode="numeric"
+                      className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
+                      placeholder="0" 
+                      value={customValues[item.id] || ''}
+                      onChange={(e) => handleCustomChange(item.id, e.target.value)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Expense Button */}
+            <button 
+              onClick={addCustomExpense}
+              className="mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-teal-500 dark:hover:border-teal-500 text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 font-bold text-sm transition-all"
+            >
+              <Plus className="w-4 h-4" /> Add an expense
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Add Expense Button */}
-      <button 
-        onClick={addCustomExpense}
-        className="mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-teal-500 dark:hover:border-teal-500 text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 font-bold text-sm transition-all"
-      >
-        <Plus className="w-4 h-4" /> Add an expense
-      </button>
     </div>
   );
 }

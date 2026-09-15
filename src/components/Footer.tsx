@@ -21,7 +21,7 @@ export default function Footer() {
       {/* Right: Waddle Brand Banner Image Slot */}
       <div className="flex items-center">
         <a 
-          href="" 
+          
           target="_blank" 
           rel="noopener noreferrer"
           className="block hover:opacity-95 transition-opacity"

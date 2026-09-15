@@ -4,7 +4,11 @@ import ExpenseCategoryCard from './ExpenseCategoryCard';
 import SavingsInfoModal from './SavingsInfoModal';
 import { Home, Tv, Car, ShieldCheck, Info } from 'lucide-react';
 
-export default function AdultCalculator({ onUpdate }: { onUpdate: (income: number, expenses: number) => void }) {
+export default function AdultCalculator({
+  onUpdate
+}: {
+  onUpdate: (income: number, expenses: number, savings: number) => void
+}) {
   const [salary, setSalary] = useState<string>('');
 
   // Expenses Object (Holds all keys, including dynamic custom ones)
@@ -19,7 +23,9 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
     const baseExpenses = Object.values(exp).reduce((acc, val) => acc + parseNum(val), 0);
     const savingsAmount = totalIncome * (savingsPercent / 100);
 
-    onUpdate(totalIncome, baseExpenses + savingsAmount);
+    // Report income, expenses, and savings separately so the summary
+    // can break them out into their own line items.
+    onUpdate(totalIncome, baseExpenses, savingsAmount);
   }, [salary, exp, savingsPercent, onUpdate]);
 
   const updateExp = (key: string, value: string) => {
@@ -53,12 +59,12 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         </div>
       </div>
 
-      {/* EXPENSE CATEGORIES GRID WITH ICONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* EXPENSE CATEGORIES GRID WITH ICONS (now accordions - see ExpenseCategoryCard) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
         <ExpenseCategoryCard 
           title="Home & Living" 
-          accentColor="bg-orange-400"
+          accentColor="text-orange-400"
           icon={Home}
           initialItems={[
             { key: 'rent', label: 'Rent / Amortization' },
@@ -73,7 +79,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
 
         <ExpenseCategoryCard 
           title="Subscriptions" 
-          accentColor="bg-teal-400"
+          accentColor="text-teal-400"
           icon={Tv}
           initialItems={[
             { key: 'wifi', label: 'Wi-Fi' },
@@ -88,7 +94,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
 
         <ExpenseCategoryCard 
           title="Transportation" 
-          accentColor="bg-blue-400"
+          accentColor="text-blue-400"
           icon={Car}
           initialItems={[
             { key: 'commute', label: 'Commute Money' },
@@ -101,7 +107,7 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
 
         <ExpenseCategoryCard 
           title="Obligations" 
-          accentColor="bg-purple-400"
+          accentColor="text-purple-400"
           icon={ShieldCheck}
           initialItems={[
             { key: 'family', label: 'Money for Family' },
@@ -136,11 +142,23 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
           </div>
         </div>
 
-        <input 
-          type="range" min="0" max="100" value={savingsPercent}
-          onChange={(e) => setSavingsPercent(Number(e.target.value))}
-          className="w-full h-3 bg-teal-700 dark:bg-teal-900 rounded-lg appearance-none cursor-pointer accent-white outline-none"
-        />
+        {/* Layered slider: background track + white fill bar behind the thumb + invisible native input on top for interaction */}
+        <div className="relative w-full h-3">
+          <div className="absolute inset-0 bg-teal-700 dark:bg-teal-900 rounded-lg" />
+          <div
+            className="absolute inset-y-0 left-0 bg-white rounded-lg pointer-events-none"
+            style={{ width: `${savingsPercent}%` }}
+          />
+          <input 
+            type="range" min="0" max="100" value={savingsPercent}
+            onChange={(e) => setSavingsPercent(Number(e.target.value))}
+            className="absolute inset-0 w-full h-3 appearance-none bg-transparent cursor-pointer outline-none
+              [&::-webkit-slider-runnable-track]:bg-transparent
+              [&::-moz-range-track]:bg-transparent
+              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:mt-[-2px]
+              [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+          />
+        </div>
 
         <div className="flex justify-between items-end mt-6 pt-4 border-t-2 border-teal-400 dark:border-teal-600">
           <span className="font-bold text-teal-100 uppercase tracking-widest text-sm">Monthly Target</span>
