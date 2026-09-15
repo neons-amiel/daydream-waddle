@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* THIS ENABLES THE MANUAL TOGGLE */
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
