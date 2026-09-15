@@ -1,50 +1,15 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-
-// 1. THIS IS OUTSIDE: Handles comma formatting and maintains focus
-const InputRow = ({ label, value, setter }: { label: string, value: string, setter: (val: string) => void }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Strip out everything except numbers
-    const rawValue = e.target.value.replace(/[^0-9]/g, '');
-    if (rawValue === '') {
-      setter('');
-    } else {
-      // Add commas back in
-      setter(Number(rawValue).toLocaleString('en-US'));
-    }
-  };
-
-  return (
-    <div className="flex justify-between items-center py-3 border-b-2 border-zinc-200 dark:border-zinc-700/50 last:border-0">
-      <label className="text-sm font-bold text-zinc-600 dark:text-zinc-400">{label}</label>
-      <input 
-        type="text" 
-        inputMode="numeric"
-        className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
-        placeholder="0" 
-        value={value} 
-        onChange={handleChange}
-      />
-    </div>
-  );
-};
+import ExpenseCategoryCard from './ExpenseCategoryCard';
 
 export default function AdultCalculator({ onUpdate }: { onUpdate: (income: number, expenses: number) => void }) {
   const [salary, setSalary] = useState<string>('');
 
-  // Expenses Object (Stored as formatted strings)
-  const [exp, setExp] = useState({
-    rent: '', elect: '', water: '', groceries: '', food: '',
-    wifi: '', netflix: '', spotify: '', youtube: '', phone: '',
-    commute: '', gas: '', carAmort: '',
-    family: '',
-    lifeIns: '', carIns: '', homeIns: ''
-  });
-
+  // Expenses Object (Holds all keys, including dynamic custom ones)
+  const [exp, setExp] = useState<Record<string, string>>({});
   const [savingsPercent, setSavingsPercent] = useState<number>(30);
 
-  // Helper to parse strings back to numbers for math
-  const parseNum = (val: string) => Number(val.replace(/,/g, '')) || 0;
+  const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
 
   useEffect(() => {
     const totalIncome = parseNum(salary);
@@ -54,7 +19,9 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
     onUpdate(totalIncome, baseExpenses + savingsAmount);
   }, [salary, exp, savingsPercent, onUpdate]);
 
-  const updateExp = (key: keyof typeof exp, value: string) => setExp(prev => ({ ...prev, [key]: value }));
+  const updateExp = (key: string, value: string) => {
+    setExp(prev => ({ ...prev, [key]: value }));
+  };
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^0-9]/g, '');
@@ -83,92 +50,86 @@ export default function AdultCalculator({ onUpdate }: { onUpdate: (income: numbe
         </div>
       </div>
 
-      {/* EXPENSE CATEGORIES GRID */}
+      {/* EXPENSE CATEGORIES GRID USING REUSABLE COMPONENT */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Category: Home & Living */}
-        <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-6 bg-orange-400 rounded-full"></div>
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">Home & Living</h4>
-          </div>
-          <div className="flex flex-col">
-            <InputRow label="Rent / Amortization" value={exp.rent} setter={(val) => updateExp('rent', val)} />
-            <InputRow label="Electricity" value={exp.elect} setter={(val) => updateExp('elect', val)} />
-            <InputRow label="Water" value={exp.water} setter={(val) => updateExp('water', val)} />
-            <InputRow label="Groceries" value={exp.groceries} setter={(val) => updateExp('groceries', val)} />
-            <InputRow label="Outside Food" value={exp.food} setter={(val) => updateExp('food', val)} />
-          </div>
-        </div>
+        <ExpenseCategoryCard 
+          title="Home & Living" 
+          accentColor="bg-orange-400"
+          initialItems={[
+            { key: 'rent', label: 'Rent / Amortization' },
+            { key: 'elect', label: 'Electricity' },
+            { key: 'water', label: 'Water' },
+            { key: 'groceries', label: 'Groceries' },
+            { key: 'food', label: 'Outside Food' }
+          ]}
+          values={exp}
+          onChange={updateExp}
+        />
 
-        {/* Category: Subscriptions */}
-        <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-6 bg-teal-400 rounded-full"></div>
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">Subscriptions</h4>
-          </div>
-          <div className="flex flex-col">
-            <InputRow label="Wi-Fi" value={exp.wifi} setter={(val) => updateExp('wifi', val)} />
-            <InputRow label="Netflix" value={exp.netflix} setter={(val) => updateExp('netflix', val)} />
-            <InputRow label="Spotify" value={exp.spotify} setter={(val) => updateExp('spotify', val)} />
-            <InputRow label="YouTube Premium" value={exp.youtube} setter={(val) => updateExp('youtube', val)} />
-            <InputRow label="Data/Phone Bill" value={exp.phone} setter={(val) => updateExp('phone', val)} />
-          </div>
-        </div>
+        <ExpenseCategoryCard 
+          title="Subscriptions" 
+          accentColor="bg-teal-400"
+          initialItems={[
+            { key: 'wifi', label: 'Wi-Fi' },
+            { key: 'netflix', label: 'Netflix' },
+            { key: 'spotify', label: 'Spotify' },
+            { key: 'youtube', label: 'YouTube Premium' },
+            { key: 'phone', label: 'Data/Phone Bill' }
+          ]}
+          values={exp}
+          onChange={updateExp}
+        />
 
-        {/* Category: Transportation */}
-        <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-6 bg-blue-400 rounded-full"></div>
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">Transportation</h4>
-          </div>
-          <div className="flex flex-col">
-            <InputRow label="Commute Money" value={exp.commute} setter={(val) => updateExp('commute', val)} />
-            <InputRow label="Gas" value={exp.gas} setter={(val) => updateExp('gas', val)} />
-            <InputRow label="Car Amortization" value={exp.carAmort} setter={(val) => updateExp('carAmort', val)} />
-          </div>
-        </div>
+        <ExpenseCategoryCard 
+          title="Transportation" 
+          accentColor="bg-blue-400"
+          initialItems={[
+            { key: 'commute', label: 'Commute Money' },
+            { key: 'gas', label: 'Gas' },
+            { key: 'carAmort', label: 'Car Amortization' }
+          ]}
+          values={exp}
+          onChange={updateExp}
+        />
 
-        {/* Category: Obligations */}
-        <div className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-3xl border-2 border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-6 bg-purple-400 rounded-full"></div>
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100">Obligations</h4>
-          </div>
-          <div className="flex flex-col">
-            <InputRow label="Money for Family" value={exp.family} setter={(val) => updateExp('family', val)} />
-            <InputRow label="Life Insurance" value={exp.lifeIns} setter={(val) => updateExp('lifeIns', val)} />
-            <InputRow label="Car Insurance" value={exp.carIns} setter={(val) => updateExp('carIns', val)} />
-            <InputRow label="Home Insurance" value={exp.homeIns} setter={(val) => updateExp('homeIns', val)} />
-          </div>
-        </div>
+        <ExpenseCategoryCard 
+          title="Obligations" 
+          accentColor="bg-purple-400"
+          initialItems={[
+            { key: 'family', label: 'Money for Family' },
+            { key: 'lifeIns', label: 'Life Insurance' },
+            { key: 'carIns', label: 'Car Insurance' },
+            { key: 'homeIns', label: 'Home Insurance' }
+          ]}
+          values={exp}
+          onChange={updateExp}
+        />
+
       </div>
 
-      {/* SAVINGS SLIDER BENTO (Dark Contrast Motif) */}
-      <div className="bg-zinc-900 text-white p-6 md:p-8 rounded-3xl shadow-lg relative overflow-hidden mt-4">
-        {/* Ambient background glow */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 relative z-10 gap-4">
+      {/* SAVINGS SLIDER BENTO */}
+      <div className="bg-teal-500 dark:bg-teal-700 text-white p-6 md:p-8 rounded-[2rem] shadow-xl mt-4 transition-colors duration-300">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
           <div>
             <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
-            <p className="text-sm font-bold text-zinc-400 mt-1 uppercase tracking-wider">Recommended: 30% of salary</p>
+            <p className="text-sm font-bold text-teal-100 mt-1 uppercase tracking-wider">Recommended: 30% of salary</p>
           </div>
-          <div className="bg-zinc-800 px-5 py-2 rounded-2xl border-2 border-zinc-700">
-             <span className="text-3xl font-black text-orange-400">{savingsPercent}%</span>
+          <div className="bg-teal-600 dark:bg-teal-800 px-5 py-2 rounded-2xl">
+             <span className="text-3xl font-black text-white">{savingsPercent}%</span>
           </div>
         </div>
 
         <input 
           type="range" min="0" max="100" value={savingsPercent}
           onChange={(e) => setSavingsPercent(Number(e.target.value))}
-          className="w-full h-3 bg-zinc-700 rounded-lg appearance-none cursor-pointer relative z-10 accent-orange-400"
+          className="w-full h-3 bg-teal-700 dark:bg-teal-900 rounded-lg appearance-none cursor-pointer accent-white outline-none"
         />
 
-        <div className="flex justify-between items-end mt-6 relative z-10 pt-4 border-t-2 border-zinc-800">
-          <span className="font-bold text-zinc-400 uppercase tracking-widest text-sm">Monthly Target</span>
+        <div className="flex justify-between items-end mt-6 pt-4 border-t-2 border-teal-400 dark:border-teal-600">
+          <span className="font-bold text-teal-100 uppercase tracking-widest text-sm">Monthly Target</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-zinc-500">₱</span>
+            <span className="text-xl font-bold text-teal-200">₱</span>
             <span className="text-3xl font-black text-white">
               {(parseNum(salary) * (savingsPercent / 100)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </span>
