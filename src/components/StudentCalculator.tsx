@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import ExpenseCategoryCard from './ExpenseCategoryCard';
 import { Wallet, Bus, Utensils, Sparkles } from 'lucide-react';
 
-export default function StudentCalculator({ onUpdate }: { onUpdate: (income: number, expenses: number) => void }) {
+export default function StudentCalculator({
+  onUpdate
+}: {
+  onUpdate: (income: number, expenses: number, savings: number) => void
+}) {
   // Income State (Daily Allowance & Monthly Side Hustle)
   const [allowance, setAllowance] = useState<string>('');
   const [sideHustle, setSideHustle] = useState<string>('');
@@ -22,7 +26,9 @@ export default function StudentCalculator({ onUpdate }: { onUpdate: (income: num
     const baseExpensesDaily = Object.values(exp).reduce((acc, val) => acc + parseNum(val), 0);
     const monthlyBaseExpenses = baseExpensesDaily * 30;
 
-    onUpdate(totalIncome, monthlyBaseExpenses);
+    // Student profile has no separate savings-percentage feature (unlike Adult),
+    // so we report 0 for savings - "Personal Spending Fund" stays a plain expense.
+    onUpdate(totalIncome, monthlyBaseExpenses, 0);
   }, [allowance, sideHustle, exp, onUpdate]);
 
   const updateExp = (key: string, value: string) => {
@@ -96,11 +102,11 @@ export default function StudentCalculator({ onUpdate }: { onUpdate: (income: num
       </div>
 
       {/* EXPENSE CATEGORIES GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
         <ExpenseCategoryCard 
           title="Daily Commute" 
-          accentColor="bg-blue-400"
+          accentColor="text-blue-400"
           icon={Bus}
           initialItems={[
             { key: 'commuteSchool', label: 'Commute (To School)' },
@@ -112,7 +118,7 @@ export default function StudentCalculator({ onUpdate }: { onUpdate: (income: num
 
         <ExpenseCategoryCard 
           title="Food & Meals" 
-          accentColor="bg-orange-400"
+          accentColor="text-orange-400"
           icon={Utensils}
           initialItems={[
             { key: 'recess', label: 'Recess' },
@@ -125,7 +131,7 @@ export default function StudentCalculator({ onUpdate }: { onUpdate: (income: num
 
         <ExpenseCategoryCard 
           title="School & Personal" 
-          accentColor="bg-teal-400"
+          accentColor="text-teal-400"
           icon={Wallet}
           initialItems={[
             { key: 'others', label: 'Others / Printing / Projects' }
@@ -136,7 +142,7 @@ export default function StudentCalculator({ onUpdate }: { onUpdate: (income: num
 
         <ExpenseCategoryCard 
           title="Extra Allocation" 
-          accentColor="bg-purple-400"
+          accentColor="text-purple-400"
           icon={Sparkles}
           initialItems={[
             { key: 'savings', label: 'Personal Spending Fund' }

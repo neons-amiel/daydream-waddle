@@ -57,9 +57,7 @@ export default function DaydreamHome() {
     }
   };
 
-  // --- ALWAYS-VISIBLE "TIME TO AFFORD" BAR ---
-  // Sits directly beneath the header at all times (sticky, not fixed - avoids
-  // fixed-position elements breaking if any ancestor has a CSS transform).
+
 
   const timeDisplay = numericCost && leftover > 0
     ? { value: totalMonths < 12 ? totalMonths.toFixed(1) : yearsToAfford, unit: totalMonths < 12 ? 'mos' : 'yrs' }
