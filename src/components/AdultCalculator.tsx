@@ -7,10 +7,10 @@ import { Home, Tv, Car, ShieldCheck, Info } from 'lucide-react';
 export default function AdultCalculator({
   onUpdate
 }: {
-  onUpdate: (income: number, expenses: number, savings: number) => void
+  onUpdate: (income: number, expenses: number, savings: number, details?: Record<string, string>) => void
 }) {
   const [salary, setSalary] = useState<string>('');
-
+  
   // Expenses Object (Holds all keys, including dynamic custom ones)
   const [exp, setExp] = useState<Record<string, string>>({});
   const [savingsPercent, setSavingsPercent] = useState<number>(30);
@@ -25,7 +25,7 @@ export default function AdultCalculator({
 
     // Report income, expenses, and savings separately so the summary
     // can break them out into their own line items.
-    onUpdate(totalIncome, baseExpenses, savingsAmount);
+    onUpdate(totalIncome, baseExpenses, savingsAmount, exp);
   }, [salary, exp, savingsPercent, onUpdate]);
 
   const updateExp = (key: string, value: string) => {

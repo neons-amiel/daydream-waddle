@@ -81,7 +81,7 @@ export default function ExpenseCategoryCard({
             </div>
           )}
           <div className="min-w-0">
-            <h4 className="font-extrabold text-lg text-zinc-800 dark:text-zinc-100 truncate">{title}</h4>
+            <h4 className="font-extrabold lg:text-lg text-sm text-zinc-800 dark:text-zinc-100 truncate">{title}</h4>
             <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mt-0.5">
               {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </p>
