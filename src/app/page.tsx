@@ -40,7 +40,7 @@ export default function DaydreamHome() {
   const [expenseBreakdown, setExpenseBreakdown] = useState<Record<string, string>>({});
 
   // --- EXPORT STATE & REF ---
-  const summaryRef = useRef<HTMLElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
   const parseNum = (val: any) => Number(String(val).replace(/,/g, '')) || 0;
