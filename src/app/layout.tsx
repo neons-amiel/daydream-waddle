@@ -14,11 +14,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://daydream.waddleph.com'),
-  title: "Daydream by Waddle PH | Financial Goal & Affordability Tracker",
-  description: "Calculate how long it takes to afford your dream items with Daydream. This simple personal finance and savings tracker was built and powered by Waddle PH IT Solutions.",
+  title: "Daydream Calculator by Waddle PH | How long do I have to save?",
+  description: "Calculate how long it takes to afford your dream goal with Daydream. This simple personal finance and savings tracker was built and powered by Waddle PH IT Solutions.",
   keywords: [
-    "Daydream",
+    "Daydream Calculator",
     "Waddle PH",
+    "Daydream",
     "affordability calculator",
     "financial goal tracker",
     "savings planner Philippines",

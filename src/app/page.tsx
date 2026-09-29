@@ -115,7 +115,7 @@ export default function DaydreamHome() {
           expenses: totalExpenses,
           savings: totalSavings,
           leftover,
-          months: timeDisplay.value,
+          timeToAfford: `${timeDisplay.value} ${timeDisplay.unit}`,
           expenseDetails: expenseBreakdown // <--- Pass itemized data here
         }),
       });

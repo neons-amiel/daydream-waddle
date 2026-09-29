@@ -6,17 +6,17 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { dreamItem, income, expenses, savings, leftover, months, expenseDetails } = body;
+    // FIX 1: Change 'months' to 'timeToAfford' here
+    const { dreamItem, income, expenses, savings, leftover, timeToAfford, expenseDetails } = body;
 
-    // 1. Convert the expense dictionary into a readable sentence for the AI
     const formattedExpenses = expenseDetails && Object.keys(expenseDetails).length > 0 
       ? Object.entries(expenseDetails)
-          .filter(([_, val]) => val !== '' && val !== '0') // Filter out empty inputs
+          .filter(([_, val]) => val !== '' && val !== '0')
           .map(([key, val]) => `${key}: ₱${val}`)
           .join(', ') 
       : 'Not detailed';
 
-    // 2. The optimized Noot Noot prompt with itemized visibility
+    // FIX 2: Swap the hardcoded months variable with the dynamic timeToAfford variable
     const prompt = `You are Noot Noot, a smart, realistic, and encouraging financial advisor for the app Daydream. 
     The user is saving for: ${dreamItem || 'a special item'}. 
     Monthly Income: ₱${income}
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     Itemized Expenses Breakdown: ${formattedExpenses}
     Mandatory Savings: ₱${savings}
     Left for Goal: ₱${leftover}
-    Time to afford: ${months} months.
+    Time to afford: ${timeToAfford}.
     
     Act like a real financial professional evaluating their profile:
     1. If they are over budget (Left for Goal is negative or 0), gently advise them to fix their deficit or cut expenses before buying wants.
