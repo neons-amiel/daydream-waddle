@@ -5,7 +5,6 @@ import { Sun, Moon, HelpCircle, Info, Download, Loader2 } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 
 import Header, { Profile } from '../components/Header';
-import StudentCalculator from '../components/StudentCalculator';
 import AdultCalculator from '../components/AdultCalculator';
 import HowItWorksModal from '../components/HowItWorksModal';
 import TimeInfoModal from '../components/TimeInfoModal';
@@ -205,7 +204,6 @@ export default function DaydreamHome() {
             </div>
             
             <div className="mt-4">
-              {activeProfile === 'Student' && <StudentCalculator onUpdate={handleFinancialUpdate} />}
               {activeProfile === 'Adult' && <AdultCalculator onUpdate={handleFinancialUpdate} />}
               {activeProfile === 'Parent' && <div className="p-12 text-center font-bold text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-zinc-700">Parent calculator coming next!</div>}
               {activeProfile === 'Custom' && <div className="p-12 text-center font-bold text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-zinc-700">Custom calculator coming next!</div>}
