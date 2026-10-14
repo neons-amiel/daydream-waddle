@@ -147,25 +147,25 @@ export default function DaydreamHome() {
           {/* DREAM ITEM ROW */}
           <section className="col-span-1 lg:col-span-12 bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row gap-6 items-center transition-colors duration-300">
             <div className="flex-1 w-full space-y-1">
-              <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Your Dream Item</label>
+              <label className="block text-sm font-bold text-zinc-600 dark:text-white uppercase tracking-widest">Your Dream Item</label>
               <input 
                 type="text" 
                 placeholder="e.g., Japan Trip, PS5..." 
-                className="w-full text-2xl md:text-3xl font-bold bg-transparent border-b-2 border-zinc-300 dark:border-zinc-700 focus:border-teal-500 pb-2 outline-none text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 transition-colors"
+                className="w-full text-2xl md:text-3xl font-bold bg-transparent border-b-2 border-zinc-300 dark:border-zinc-700 focus:border-teal-500 pb-2 outline-none text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-400 transition-colors"
                 value={dreamItem}
                 onChange={(e) => setDreamItem(e.target.value)}
               />
             </div>
 
             <div className="flex-1 w-full space-y-1">
-              <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Total Cost</label>
+              <label className="block text-sm font-bold text-zinc-600 dark:text-white uppercase tracking-widest">Total Cost</label>
               <div className="flex items-end gap-2 border-b-2 border-zinc-300 dark:border-zinc-700 focus-within:border-teal-500 transition-colors pb-2">
                 <span className="text-2xl md:text-3xl font-bold text-zinc-500 dark:text-zinc-400">₱</span>
                 <input 
                   type="text" 
                   inputMode="numeric"
                   placeholder="0" 
-                  className="w-full text-2xl md:text-3xl font-bold bg-transparent outline-none text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                  className="w-full text-2xl md:text-3xl font-bold bg-transparent outline-none text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-400"
                   value={dreamCost}
                   onChange={handleCostChange}
                 />
@@ -190,7 +190,7 @@ export default function DaydreamHome() {
           </section>
 
           {/* CALCULATOR INPUTS */}
-          <section  className="col-span-1 lg:col-span-8 bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
+          <section className="col-span-1 lg:col-span-8 h-fit bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
             <div className="mb-8">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-8 bg-teal-500 rounded-full shrink-0"></div>
@@ -297,7 +297,7 @@ export default function DaydreamHome() {
             {/* BENTO: AI Insights */}
             <section className="bg-teal-50 dark:bg-teal-950/20 p-8 rounded-[2rem] border-2 border-teal-200 dark:border-teal-900/50 relative overflow-hidden flex flex-col transition-colors duration-300 h-fit">
               <div className="flex items-center gap-2 mb-4 relative z-10">
-                <div className="dark:bg-teal-800 p-2 rounded-xl transition-colors duration-300">
+                <div className="dark:bg-white p-2 rounded-xl transition-colors duration-300">
                   <img src="nootnoot.png" width={40} height={40} alt="" className="w-12 h-10 object-contain"/>
                 </div>
                 <h3 className="font-extrabold text-teal-900 dark:text-teal-400">Noot Noot</h3>

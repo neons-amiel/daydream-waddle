@@ -26,12 +26,13 @@ export default function Footer() {
           rel="noopener noreferrer"
           className="block hover:opacity-95 transition-opacity"
         >
-          <div className="relative h-9 w-36 sm:w-44">
+          <div className="relative h-9 w-36 sm:w-44 dark:bg-zinc-100 dark:rounded-xl dark:shadow-sm transition-colors duration-300">
             <Image 
               src="/waddle_banner.svg" 
               alt="WaddlePH Logo Banner" 
               fill 
-              className="object-contain"
+              // p-1.5 ensures the image doesn't touch the edges of the white background
+              className="object-contain p-1.5" 
             />
           </div>
         </a>

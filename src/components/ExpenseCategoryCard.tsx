@@ -76,8 +76,8 @@ export default function ExpenseCategoryCard({
         <div className="flex items-center gap-3 min-w-0">
           {/* Colored icon replaces the old accent pill - saves horizontal space */}
           {Icon && (
-            <div className="p-2 rounded-xl  dark:bg-zinc-700/50 flex-shrink-0">
-              <Icon className={`w-5 h-5 ${accentColor}`} />
+            <div className="p-2 rounded-xl   flex-shrink-0">
+              <Icon className={`w-6 h-6 ${accentColor}`} />
             </div>
           )}
           <div className="min-w-0">
@@ -110,7 +110,7 @@ export default function ExpenseCategoryCard({
               {/* Default Preset Rows */}
               {initialItems.map(({ key, label }) => (
                 <div key={key} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50">
-                  <label className="text-sm font-bold text-zinc-600 dark:text-zinc-400">{label}</label>
+                  <label className="text-sm font-bold text-zinc-600 dark:text-zinc-200">{label}</label>
                   <input 
                     type="text" 
                     inputMode="numeric"
