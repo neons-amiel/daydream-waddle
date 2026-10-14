@@ -3,14 +3,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Sun, Moon, HelpCircle, Info, Download, Loader2 } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
-import Header from '../components/Header';
+
+import Header, { Profile } from '../components/Header';
 import StudentCalculator from '../components/StudentCalculator';
 import AdultCalculator from '../components/AdultCalculator';
 import HowItWorksModal from '../components/HowItWorksModal';
 import TimeInfoModal from '../components/TimeInfoModal';
 import Footer from '../components/Footer';
-
-type Profile = 'Student' | 'Adult' | 'Parent' | 'Custom';
 
 export default function DaydreamHome() {
   const [activeProfile, setActiveProfile] = useState<Profile>('Adult');

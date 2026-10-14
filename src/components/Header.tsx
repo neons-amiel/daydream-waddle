@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Menu, X, ExternalLink } from 'lucide-react';
 
-type Profile = 'Adult' | 'Parent' | 'Custom';
+export type Profile = 'Adult' | 'Parent' | 'Custom';
 
 interface HeaderProps {
   activeProfile: Profile;
