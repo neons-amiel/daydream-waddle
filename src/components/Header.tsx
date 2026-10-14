@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Menu, X, ExternalLink } from 'lucide-react';
 
-type Profile = 'Student' | 'Adult' | 'Parent' | 'Custom';
+type Profile = 'Adult' | 'Parent' | 'Custom';
 
 interface HeaderProps {
   activeProfile: Profile;
@@ -24,7 +24,7 @@ export default function Header({ activeProfile, setActiveProfile }: HeaderProps)
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const profiles: Profile[] = ['Student', 'Adult', 'Parent', 'Custom'];
+  const profiles: Profile[] = ['Adult', 'Parent', 'Custom'];
 
   return (
     <header 
@@ -73,7 +73,7 @@ export default function Header({ activeProfile, setActiveProfile }: HeaderProps)
                     : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
               >
-                I'm a {profile}
+                {profile === 'Adult' ? "I'm an Adult" : `I'm a ${profile}`}
               </li>
             ))}
           </ul>
@@ -109,13 +109,7 @@ export default function Header({ activeProfile, setActiveProfile }: HeaderProps)
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-zinc-900 border-b-2 border-zinc-200 dark:border-zinc-800 shadow-xl py-6 px-6 animate-fadeIn space-y-6">
           <div>
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Select Profile</p>
-              {/* Subtle active profile tag inside the open drawer */}
-              <span className="text-xs font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-1 rounded-lg border border-teal-200 dark:border-teal-900">
-                Active: {activeProfile}
-              </span>
-            </div>
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Select Profile</p>
             
             <ul className="flex flex-col gap-2">
               {profiles.map((profile) => (
@@ -131,7 +125,7 @@ export default function Header({ activeProfile, setActiveProfile }: HeaderProps)
                       : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
                   }`}
                 >
-                  <span>I'm a {profile}</span>
+                  <span>{profile === 'Adult' ? "I'm an Adult" : `I'm a ${profile}`}</span>
                   {activeProfile === profile && <span className="w-2 h-2 rounded-full bg-white"></span>}
                 </li>
               ))}

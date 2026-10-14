@@ -116,7 +116,7 @@ export default function DaydreamHome() {
           savings: totalSavings,
           leftover,
           timeToAfford: `${timeDisplay.value} ${timeDisplay.unit}`,
-          expenseDetails: expenseBreakdown // <--- Pass itemized data here
+          expenseDetails: expenseBreakdown 
         }),
       });
       const data = await res.json();
@@ -176,7 +176,7 @@ export default function DaydreamHome() {
             
             <div className="w-full md:w-auto bg-teal-500 dark:bg-teal-600 text-white p-6 rounded-3xl flex flex-col justify-center items-center md:items-start min-w-[200px] shadow-lg transition-colors duration-300 relative">
               <div className="flex items-center justify-between w-full gap-2">
-                <span className="text-sm font-bold uppercase tracking-widest opacity-90">Time to Afford</span>
+                <span className="text-sm font-bold uppercase tracking-widest opacity-90">Time to Afford</span> 
                 <button 
                   onClick={() => setShowTimeInfo(true)}
                   className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 text-teal-100 hover:text-white transition-colors"
@@ -237,7 +237,7 @@ export default function DaydreamHome() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center bg-teal-600/50 dark:bg-teal-800/50 p-3.5 rounded-xl border border-teal-400/30 dark:border-teal-600/50">
                     <span className="font-bold text-teal-50">1. Net Income</span>
-                    <span className="font-black text-white text-lg">+{totalIncome.toLocaleString()}</span>
+                    <span className="font-black text-green-300 text-lg">+{totalIncome.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center bg-teal-600/50 dark:bg-teal-800/50 p-3.5 rounded-xl border border-teal-400/30 dark:border-teal-600/50">
                     <span className="font-bold text-teal-50">2. Expenses</span>
@@ -258,15 +258,15 @@ export default function DaydreamHome() {
                 </div>
                 <div className="text-right mt-1">
                   <span className={`text-xs font-bold ${isOverBudget ? 'text-red-300' : 'text-teal-200'}`}>
-                    {isOverBudget ? 'Over Budget' : `${expensePercentage.toFixed(0)}% Allocated`}
+                    {isOverBudget ? 'Over Budget' : `${expensePercentage.toFixed(0)}% of your salary are expenses`}
                   </span>
                 </div>
                 
                 {/* RESPONSIVE WHAT'S LEFT SECTION */}
                 <div className="mt-6 pt-6 border-t-2 border-teal-400 dark:border-teal-600 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-2 lg:gap-0">
-                  <span className="font-bold text-teal-100 flex flex-col">
+                  <span className="font-bold text-white-100 flex flex-col">
                     <span>4. What's Left</span>
-                    <span className="text-[10px] uppercase tracking-wider opacity-70">For your goal</span>
+                    <span className="text-[10px] uppercase tracking-wider opacity-70">After everything</span>
                   </span>
                   <span className={`text-4xl font-black ${isOverBudget ? 'text-red-500' : 'text-white'}`}>
                     ₱{leftover.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -297,17 +297,18 @@ export default function DaydreamHome() {
             </section>
 
             {/* BENTO: AI Insights */}
-            <section className="bg-teal-50 dark:bg-teal-950/20 p-8 rounded-[2rem] border-2 border-teal-200 dark:border-teal-900/50 relative overflow-hidden flex-1 flex flex-col justify-center transition-colors duration-300">
+            {/* BENTO: AI Insights */}
+            <section className="bg-teal-50 dark:bg-teal-950/20 p-8 rounded-[2rem] border-2 border-teal-200 dark:border-teal-900/50 relative overflow-hidden flex flex-col transition-colors duration-300 h-fit">
               <div className="flex items-center gap-2 mb-4 relative z-10">
-                <div className= " dark:bg-teal-800 p-2 rounded-xl transition-colors duration-300">
-                  <img src="nootnoot.png" width={40} height={40} alt="" className='w-12 h-10 object-contain'/>
+                <div className="dark:bg-teal-800 p-2 rounded-xl transition-colors duration-300">
+                  <img src="nootnoot.png" width={40} height={40} alt="" className="w-12 h-10 object-contain"/>
                 </div>
                 <h3 className="font-extrabold text-teal-900 dark:text-teal-400">Noot Noot</h3>
               </div>
 
-              <div className="relative z-10 min-h-[80px] flex flex-col justify-center">
+              <div className="relative z-10 flex flex-col">
                 {isGeneratingAI ? (
-                  <div className="flex items-center gap-3 text-teal-700 dark:text-teal-400 font-bold">
+                  <div className="flex items-center gap-3 text-teal-700 dark:text-teal-400 font-bold py-2">
                     <Loader2 className="w-5 h-5 animate-spin" /> 
                     <span>NootNoot is crunching the numbers...</span>
                   </div>

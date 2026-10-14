@@ -40,7 +40,7 @@ export default function AdultCalculator({
   return (
     <div className="space-y-6">
 
-      {/* SALARY BENTO BOX */}
+      {/* 1. SALARY BENTO BOX */}
       <div className="bg-teal-50 dark:bg-teal-950/20 p-6 rounded-3xl border-2 border-teal-200 dark:border-teal-900/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors">
         <div>
           <h3 className="font-extrabold text-teal-800 dark:text-teal-400 text-xl">Net Salary</h3>
@@ -59,7 +59,57 @@ export default function AdultCalculator({
         </div>
       </div>
 
-      {/* EXPENSE CATEGORIES GRID WITH ICONS (now accordions - see ExpenseCategoryCard) */}
+      {/* 2. SAVINGS SLIDER BENTO WITH INFO MODAL TRIGGER ("Pay Yourself First") */}
+      <div className="bg-teal-500 dark:bg-teal-700 text-white p-6 md:p-8 rounded-[2rem] shadow-xl transition-colors duration-300">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
+              <button 
+                onClick={() => setShowSavingsInfo(true)}
+                className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-800 text-teal-100 hover:text-white transition-colors"
+                aria-label="More information about Mandatory Savings"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm font-bold text-teal-100 mt-1 uppercase tracking-wider">Recommended: 30% of salary</p>
+          </div>
+          <div className="bg-teal-600 dark:bg-teal-800 px-5 py-2 rounded-2xl">
+             <span className="text-3xl font-black text-white">{savingsPercent}%</span>
+          </div>
+        </div>
+
+        {/* Layered slider */}
+        <div className="relative w-full h-3">
+          <div className="absolute inset-0 bg-teal-700 dark:bg-teal-900 rounded-lg" />
+          <div
+            className="absolute inset-y-0 left-0 bg-white rounded-lg pointer-events-none"
+            style={{ width: `${savingsPercent}%` }}
+          />
+          <input 
+            type="range" min="0" max="100" value={savingsPercent}
+            onChange={(e) => setSavingsPercent(Number(e.target.value))}
+            className="absolute inset-0 w-full h-3 appearance-none bg-transparent cursor-pointer outline-none
+              [&::-webkit-slider-runnable-track]:bg-transparent
+              [&::-moz-range-track]:bg-transparent
+              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:mt-[-2px]
+              [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+          />
+        </div>
+
+        <div className="flex justify-between items-end mt-6 pt-4 border-t-2 border-teal-400 dark:border-teal-600">
+          <span className="font-bold text-teal-100 uppercase tracking-widest text-sm">Monthly Target</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl font-bold text-teal-200">₱</span>
+            <span className="text-3xl font-black text-white">
+              {(parseNum(salary) * (savingsPercent / 100)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. EXPENSE CATEGORIES GRID WITH ICONS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
         <ExpenseCategoryCard 
@@ -119,56 +169,6 @@ export default function AdultCalculator({
           onChange={updateExp}
         />
 
-      </div>
-
-      {/* SAVINGS SLIDER BENTO WITH INFO MODAL TRIGGER */}
-      <div className="bg-teal-500 dark:bg-teal-700 text-white p-6 md:p-8 rounded-[2rem] shadow-xl mt-4 transition-colors duration-300">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
-              <button 
-                onClick={() => setShowSavingsInfo(true)}
-                className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-800 text-teal-100 hover:text-white transition-colors"
-                aria-label="More information about Mandatory Savings"
-              >
-                <Info className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-sm font-bold text-teal-100 mt-1 uppercase tracking-wider">Recommended: 30% of salary</p>
-          </div>
-          <div className="bg-teal-600 dark:bg-teal-800 px-5 py-2 rounded-2xl">
-             <span className="text-3xl font-black text-white">{savingsPercent}%</span>
-          </div>
-        </div>
-
-        {/* Layered slider: background track + white fill bar behind the thumb + invisible native input on top for interaction */}
-        <div className="relative w-full h-3">
-          <div className="absolute inset-0 bg-teal-700 dark:bg-teal-900 rounded-lg" />
-          <div
-            className="absolute inset-y-0 left-0 bg-white rounded-lg pointer-events-none"
-            style={{ width: `${savingsPercent}%` }}
-          />
-          <input 
-            type="range" min="0" max="100" value={savingsPercent}
-            onChange={(e) => setSavingsPercent(Number(e.target.value))}
-            className="absolute inset-0 w-full h-3 appearance-none bg-transparent cursor-pointer outline-none
-              [&::-webkit-slider-runnable-track]:bg-transparent
-              [&::-moz-range-track]:bg-transparent
-              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:mt-[-2px]
-              [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
-          />
-        </div>
-
-        <div className="flex justify-between items-end mt-6 pt-4 border-t-2 border-teal-400 dark:border-teal-600">
-          <span className="font-bold text-teal-100 uppercase tracking-widest text-sm">Monthly Target</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-teal-200">₱</span>
-            <span className="text-3xl font-black text-white">
-              {(parseNum(salary) * (savingsPercent / 100)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* RENDER SAVINGS INFO MODAL */}

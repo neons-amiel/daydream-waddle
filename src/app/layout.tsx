@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://daydream.waddleph.com'),
-  title: "Daydream Calculator by Waddle PH | How long do I have to save?",
+  title: "Daydream Calculator | Waddle PH",
   description: "Calculate how long it takes to afford your dream goal with Daydream. This simple personal finance and savings tracker was built and powered by Waddle PH IT Solutions.",
   keywords: [
     "Daydream Calculator",
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
   creator: "Waddle PH",
   publisher: "Waddle PH",
   openGraph: {
-    title: "Daydream by Waddle PH | Can You Afford It?",
+    title: "Daydream Calculator | Waddle PH",
     description: "Input your income and expenses to see exactly when you can reach your next big goal. A product by Waddle PH.",
-    url: "https://daydream.waddleph.com", // update with your actual domain when deployed
+    url: "https://daydream.waddleph.com", 
     siteName: "Daydream by Waddle PH",
     locale: "en_PH",
     type: "website",
     images: [
       {
-        url: "/waddle_banner.svg", // Path relative to public folder (or absolute URL)
+        url: "/waddle_banner.svg", 
         width: 1200,
         height: 630,
         alt: "Daydream by Waddle PH Preview",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Daydream by Waddle PH",
     description: "Track your monthly savings and calculate when you can afford your dream purchases.",
-    images: ["/waddle_banner.svg"], // Image for Twitter card
+    images: ["/waddle_banner.svg"], 
   },
 };
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -26,9 +26,9 @@ export default function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProp
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2.5 rounded-2xl text-teal-600 dark:text-teal-400">
-            <Sparkles className="w-6 h-6" />
+            <Sparkles className="lg:w-6 lg:h-6 w-5 h-5" />
           </div>
-          <h3 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100">How Daydream Works</h3>
+          <h3 className="lg:text-xl text-md font-extrabold text-zinc-900 dark:text-zinc-100">How Daydream Works</h3>
         </div>
 
         {/* Simple, Human Copy */}
