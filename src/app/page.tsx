@@ -4,20 +4,15 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Sun, Moon, HelpCircle, Info, Download, Loader2, RotateCcw, X } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 
-import Header, { Profile } from '../components/Header';
-import AdultCalculator from '../components/AdultCalculator';
-import ParentCalculator from '../components/ParentCalculator';
+import Header from '../components/Header';
+import DaydreamCalculator from '../components/DaydreamCalculator';
 import HowItWorksModal from '../components/HowItWorksModal';
 import TimeInfoModal from '../components/TimeInfoModal';
 import Footer from '../components/Footer';
 import { usePersistentState, clearSaved } from '../components/usePersistentState';
 
-// Hidden calculators report to this instead of the page, so only the visible one counts
-const noop = () => {};
-
 export default function DaydreamHome() {
   // Saved to the browser (see usePersistentState.ts)
-  const [activeProfile, setActiveProfile] = usePersistentState<Profile>('activeProfile', 'Adult');
   const [isDarkMode, setIsDarkMode] = usePersistentState<boolean>('darkMode', false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showTimeInfo, setShowTimeInfo] = useState(false);
@@ -31,10 +26,6 @@ export default function DaydreamHome() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
-
-  useEffect(() => {
-    setAiInsight(null);
-  }, [activeProfile]);
 
   // Dream Item State
   const [dreamItem, setDreamItem] = usePersistentState<string>('dreamItem', '');
@@ -140,7 +131,7 @@ export default function DaydreamHome() {
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F9FA] dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 transition-colors duration-300 relative pb-24 lg:pb-0">
 
-      <Header activeProfile={activeProfile} setActiveProfile={setActiveProfile} />
+      <Header />
 
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -215,28 +206,19 @@ export default function DaydreamHome() {
                 </p>
               </div>
 
-              {/* Clear button: quiet until hovered, only for profiles that have fields */}
-              {activeProfile !== 'Custom' && (
-                <button
-                  type="button"
-                  onClick={() => setShowClearConfirm(true)}
-                  className="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-zinc-400 hover:text-orange-500 dark:text-zinc-500 dark:hover:text-red-400 px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  Clear all
-                </button>
-              )}
+              {/* Clear button: quiet until hovered */}
+              <button
+                type="button"
+                onClick={() => setShowClearConfirm(true)}
+                className="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-zinc-400 hover:text-orange-500 dark:text-zinc-500 dark:hover:text-red-400 px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Clear all
+              </button>
             </div>
-            
+
             <div className="mt-4">
-              {/* Both stay mounted (just hidden) so switching tabs doesn't wipe them */}
-              <div className={activeProfile === 'Adult' ? '' : 'hidden'}>
-                <AdultCalculator onUpdate={activeProfile === 'Adult' ? handleFinancialUpdate : noop} />
-              </div>
-              <div className={activeProfile === 'Parent' ? '' : 'hidden'}>
-                <ParentCalculator onUpdate={activeProfile === 'Parent' ? handleFinancialUpdate : noop} />
-              </div>
-              {activeProfile === 'Custom' && <div className="p-12 text-center font-bold text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-zinc-700">Custom calculator coming next!</div>}
+              <DaydreamCalculator onUpdate={handleFinancialUpdate} />
             </div>
           </section>
 
@@ -411,11 +393,11 @@ export default function DaydreamHome() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 pr-12 mb-4">
-              Clear your {activeProfile === 'Parent' ? 'Parent' : 'Adult'} profile?
+              Clear all your numbers?
             </h3>
             <p className="text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed text-sm md:text-base">
-              This empties every salary, expense{activeProfile === 'Parent' ? ', child' : ''} and custom item in this profile,
-              and puts savings back to 30%. Your dream item and your other profile stay as they are.
+              This empties every salary, expense, child and custom item,
+              and puts savings back to 30%. Your dream item stays as it is.
             </p>
             <div className="mt-8 flex gap-3">
               <button
@@ -429,7 +411,7 @@ export default function DaydreamHome() {
               <button
                 type="button"
                 onClick={() => {
-                  clearSaved(activeProfile === 'Parent' ? 'parent:' : 'adult:');
+                  clearSaved('calc:');
                   setAiInsight(null);
                   setShowClearConfirm(false);
                 }}

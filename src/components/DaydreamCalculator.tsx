@@ -3,8 +3,11 @@ import React, { useState, useEffect } from 'react';
 import ExpenseCategoryCard from './ExpenseCategoryCard';
 import SavingsInfoModal from './SavingsInfoModal';
 import ChildCard, { Child, makeChild, childTotal, childMonthlyAllowance, peso } from './ChildCard';
-import { usePersistentState } from './usePersistentState';
+import { usePersistentState, migrateLegacyProfiles } from './usePersistentState';
 import { Home, Tv, Car, ShieldCheck, Info, Plus, Check, X } from 'lucide-react';
+
+// Move saved numbers from the old Adult/Parent profiles before anything reads them
+migrateLegacyProfiles();
 
 const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
 const formatInput = (raw: string) => {
@@ -14,7 +17,7 @@ const formatInput = (raw: string) => {
 
 // ---------- small local helpers ----------
 
-// Big ₱ salary input (same look as AdultCalculator's)
+// Big ₱ salary input
 function SalaryInput({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
   return (
     <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 p-2 rounded-2xl border-2 border-teal-200 dark:border-teal-800 focus-within:border-teal-500 transition-colors w-full md:w-auto shadow-sm">
@@ -92,19 +95,19 @@ function Dialog({ title, onClose, children }: { title: string; onClose: () => vo
 const CANCEL_BTN = 'flex-1 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-extrabold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors';
 
 // ---------- main ----------
-export default function ParentCalculator({
+export default function DaydreamCalculator({
   onUpdate,
 }: {
   onUpdate: (income: number, expenses: number, savings: number, details?: Record<string, string>) => void;
 }) {
   // Saved to the browser (see usePersistentState.ts)
-  const [salary, setSalary] = usePersistentState<string>('parent:salary', '');
-  const [hasSecondIncome, setHasSecondIncome] = usePersistentState<boolean>('parent:hasSecondIncome', false);
-  const [secondSalary, setSecondSalary] = usePersistentState<string>('parent:secondSalary', '');
-  const [hasKids, setHasKids] = usePersistentState<boolean>('parent:hasKids', false);
-  const [kids, setKids] = usePersistentState<Child[]>('parent:kids', []);
-  const [exp, setExp] = usePersistentState<Record<string, string>>('parent:expenses', {});
-  const [savingsPercent, setSavingsPercent] = usePersistentState<number>('parent:savingsPercent', 30);
+  const [salary, setSalary] = usePersistentState<string>('calc:salary', '');
+  const [hasSecondIncome, setHasSecondIncome] = usePersistentState<boolean>('calc:hasSecondIncome', false);
+  const [secondSalary, setSecondSalary] = usePersistentState<string>('calc:secondSalary', '');
+  const [hasKids, setHasKids] = usePersistentState<boolean>('calc:hasKids', false);
+  const [kids, setKids] = usePersistentState<Child[]>('calc:kids', []);
+  const [exp, setExp] = usePersistentState<Record<string, string>>('calc:expenses', {});
+  const [savingsPercent, setSavingsPercent] = usePersistentState<number>('calc:savingsPercent', 30);
 
   // UI-only state (not saved)
   const [showAddChild, setShowAddChild] = useState(false);
@@ -190,7 +193,7 @@ export default function ParentCalculator({
           checked={hasSecondIncome}
           onChange={setHasSecondIncome}
           label="Add a second household income"
-          hint="Someone else who chips in, like your spouse or co-parent"
+          hint="Someone else who chips in, like a partner, spouse or housemate"
         />
 
         <Reveal open={hasSecondIncome}>
@@ -301,7 +304,7 @@ export default function ParentCalculator({
       {/* 4. EXPENSE CATEGORIES */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <ExpenseCategoryCard
-          storageKey="parent:home"
+          storageKey="calc:home"
           title="Home & Living"
           accentColor="text-orange-400"
           icon={Home}
@@ -316,7 +319,7 @@ export default function ParentCalculator({
           onChange={updateExp}
         />
         <ExpenseCategoryCard
-          storageKey="parent:subscriptions"
+          storageKey="calc:subscriptions"
           title="Subscriptions"
           accentColor="text-teal-400"
           icon={Tv}
@@ -331,7 +334,7 @@ export default function ParentCalculator({
           onChange={updateExp}
         />
         <ExpenseCategoryCard
-          storageKey="parent:transport"
+          storageKey="calc:transport"
           title="Transportation"
           accentColor="text-blue-400"
           icon={Car}
@@ -344,7 +347,7 @@ export default function ParentCalculator({
           onChange={updateExp}
         />
         <ExpenseCategoryCard
-          storageKey="parent:obligations"
+          storageKey="calc:obligations"
           title="Obligations"
           accentColor="text-purple-400"
           icon={ShieldCheck}

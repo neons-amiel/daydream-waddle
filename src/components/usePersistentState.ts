@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState, useSyncExternalStore } from 'react';
  * so values survive tab switches, refreshes and closing the browser.
  * Only clearing site data / browsing history wipes it.
  *
- *   const [salary, setSalary] = usePersistentState('adult:salary', '');
+ *   const [salary, setSalary] = usePersistentState('calc:salary', '');
  */
 
 const PREFIX = 'daydream:v1:';
@@ -76,7 +76,7 @@ export function usePersistentState<T>(key: string, initial: T) {
 
 /**
  * Wipes every saved value whose key starts with `scope`
- * (e.g. clearSaved('parent:') resets the whole Parent calculator).
+ * (e.g. clearSaved('calc:') resets the whole calculator).
  * Every field using usePersistentState snaps back to its initial value.
  */
 export function clearSaved(scope: string) {
@@ -95,4 +95,39 @@ export function clearSaved(scope: string) {
     // storage blocked: the in-memory wipe above is enough
   }
   listeners.forEach((l) => l());
+}
+
+/**
+ * One-time move from the old Adult / Parent profiles to the single calculator.
+ * Copies whichever profile the visitor was last on (Adult if unknown) into
+ * "calc:" keys, then forgets the old profile switch. Runs once per browser:
+ * the "migrated:calc" flag sits outside "calc:" so "Clear all" can't re-trigger it.
+ * Old "adult:" / "parent:" keys are left in place as a backup.
+ */
+export function migrateLegacyProfiles() {
+  if (typeof window === 'undefined') return;
+  try {
+    const storage = window.localStorage;
+    const FLAG = PREFIX + 'migrated:calc';
+    if (storage.getItem(FLAG)) return;
+
+    const lastProfile = parse<string>(storage.getItem(PREFIX + 'activeProfile'), 'Adult');
+    const from = PREFIX + (lastProfile === 'Parent' ? 'parent:' : 'adult:');
+    const to = PREFIX + 'calc:';
+
+    const keys: string[] = [];
+    for (let i = 0; i < storage.length; i++) {
+      const k = storage.key(i);
+      if (k && k.startsWith(from)) keys.push(k);
+    }
+    keys.forEach((k) => {
+      const value = storage.getItem(k);
+      if (value !== null) storage.setItem(to + k.slice(from.length), value);
+    });
+
+    storage.removeItem(PREFIX + 'activeProfile');
+    storage.setItem(FLAG, '1');
+  } catch {
+    // storage blocked: nothing saved to move
+  }
 }
