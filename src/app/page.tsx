@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Sun, Moon, HelpCircle, Info, Download, Loader2 } from 'lucide-react';
+import { Sun, Moon, HelpCircle, Info, Download, Loader2, RotateCcw, X } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 
 import Header, { Profile } from '../components/Header';
@@ -10,7 +10,7 @@ import ParentCalculator from '../components/ParentCalculator';
 import HowItWorksModal from '../components/HowItWorksModal';
 import TimeInfoModal from '../components/TimeInfoModal';
 import Footer from '../components/Footer';
-import { usePersistentState } from '../components/usePersistentState';
+import { usePersistentState, clearSaved } from '../components/usePersistentState';
 
 // Hidden calculators report to this instead of the page, so only the visible one counts
 const noop = () => {};
@@ -21,6 +21,7 @@ export default function DaydreamHome() {
   const [isDarkMode, setIsDarkMode] = usePersistentState<boolean>('darkMode', false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showTimeInfo, setShowTimeInfo] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
 
   useEffect(() => {
@@ -201,16 +202,30 @@ export default function DaydreamHome() {
 
           {/* CALCULATOR INPUTS */}
           <section className="col-span-1 lg:col-span-8 h-fit bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-[2rem] shadow-sm border-2 border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
-            <div className="mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-8 bg-teal-500 rounded-full shrink-0"></div>
-                <h2 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
-                  Your Profile
-                </h2>
+            <div className="mb-8 flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-8 bg-teal-500 rounded-full shrink-0"></div>
+                  <h2 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
+                    Your Profile
+                  </h2>
+                </div>
+                <p className="ml-6 mt-1.5 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                  Enter your monthly income and expenses below
+                </p>
               </div>
-              <p className="ml-6 mt-1.5 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                Enter your monthly income and expenses below
-              </p>
+
+              {/* Clear button: quiet until hovered, only for profiles that have fields */}
+              {activeProfile !== 'Custom' && (
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(true)}
+                  className="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-zinc-400 hover:text-orange-500 dark:text-zinc-500 dark:hover:text-red-400 px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Clear all
+                </button>
+              )}
             </div>
             
             <div className="mt-4">
@@ -378,6 +393,54 @@ export default function DaydreamHome() {
 
       <HowItWorksModal isOpen={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
       <TimeInfoModal isOpen={showTimeInfo} onClose={() => setShowTimeInfo(false)} />
+
+      {/* CLEAR PROFILE CONFIRMATION */}
+      {showClearConfirm && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onMouseDown={(e) => e.target === e.currentTarget && setShowClearConfirm(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowClearConfirm(false)}
+        >
+          <div role="dialog" aria-modal="true" aria-label="Clear all fields" className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-[2rem] shadow-2xl max-w-md w-full relative">
+            <button
+              type="button"
+              onClick={() => setShowClearConfirm(false)}
+              aria-label="Close"
+              className="absolute top-6 right-6 p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 pr-12 mb-4">
+              Clear your {activeProfile === 'Parent' ? 'Parent' : 'Adult'} profile?
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed text-sm md:text-base">
+              This empties every salary, expense{activeProfile === 'Parent' ? ', child' : ''} and custom item in this profile,
+              and puts savings back to 30%. Your dream item and your other profile stay as they are.
+            </p>
+            <div className="mt-8 flex gap-3">
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 py-3.5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-extrabold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Keep
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearSaved(activeProfile === 'Parent' ? 'parent:' : 'adult:');
+                  setAiInsight(null);
+                  setShowClearConfirm(false);
+                }}
+                className="flex-1 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-2xl shadow-lg transition-all"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <button 
         onClick={() => setIsDarkMode(!isDarkMode)}

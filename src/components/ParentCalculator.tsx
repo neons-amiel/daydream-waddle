@@ -402,7 +402,7 @@ export default function ParentCalculator({
           </p>
           <div className="mt-8 flex gap-3">
             <button type="button" autoFocus onClick={() => setChildToRemove(null)} className={CANCEL_BTN}>Keep</button>
-            <button type="button" onClick={confirmRemoveChild} className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-extrabold rounded-2xl shadow-lg transition-all">
+            <button type="button" onClick={confirmRemoveChild} className="flex-1 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-2xl shadow-lg transition-all">
               Remove
             </button>
           </div>

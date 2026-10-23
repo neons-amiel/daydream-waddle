@@ -73,3 +73,26 @@ export function usePersistentState<T>(key: string, initial: T) {
 
   return [value, setValue] as const;
 }
+
+/**
+ * Wipes every saved value whose key starts with `scope`
+ * (e.g. clearSaved('parent:') resets the whole Parent calculator).
+ * Every field using usePersistentState snaps back to its initial value.
+ */
+export function clearSaved(scope: string) {
+  for (const key of Array.from(memory.keys())) {
+    if (key.startsWith(scope)) memory.delete(key);
+  }
+  try {
+    const storage = window.localStorage;
+    const toRemove: string[] = [];
+    for (let i = 0; i < storage.length; i++) {
+      const k = storage.key(i);
+      if (k && k.startsWith(PREFIX + scope)) toRemove.push(k);
+    }
+    toRemove.forEach((k) => storage.removeItem(k));
+  } catch {
+    // storage blocked: the in-memory wipe above is enough
+  }
+  listeners.forEach((l) => l());
+}
