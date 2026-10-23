@@ -6,13 +6,19 @@ import * as htmlToImage from 'html-to-image';
 
 import Header, { Profile } from '../components/Header';
 import AdultCalculator from '../components/AdultCalculator';
+import ParentCalculator from '../components/ParentCalculator';
 import HowItWorksModal from '../components/HowItWorksModal';
 import TimeInfoModal from '../components/TimeInfoModal';
 import Footer from '../components/Footer';
+import { usePersistentState } from '../components/usePersistentState';
+
+// Hidden calculators report to this instead of the page, so only the visible one counts
+const noop = () => {};
 
 export default function DaydreamHome() {
-  const [activeProfile, setActiveProfile] = useState<Profile>('Adult');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Saved to the browser (see usePersistentState.ts)
+  const [activeProfile, setActiveProfile] = usePersistentState<Profile>('activeProfile', 'Adult');
+  const [isDarkMode, setIsDarkMode] = usePersistentState<boolean>('darkMode', false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showTimeInfo, setShowTimeInfo] = useState(false);
 
@@ -25,9 +31,13 @@ export default function DaydreamHome() {
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    setAiInsight(null);
+  }, [activeProfile]);
+
   // Dream Item State
-  const [dreamItem, setDreamItem] = useState('');
-  const [dreamCost, setDreamCost] = useState<string>(''); 
+  const [dreamItem, setDreamItem] = usePersistentState<string>('dreamItem', '');
+  const [dreamCost, setDreamCost] = usePersistentState<string>('dreamCost', '');
 
   // --- LIVE STATE FOR CALCULATIONS ---
   const [totalIncome, setTotalIncome] = useState(0); 
@@ -204,8 +214,13 @@ export default function DaydreamHome() {
             </div>
             
             <div className="mt-4">
-              {activeProfile === 'Adult' && <AdultCalculator onUpdate={handleFinancialUpdate} />}
-              {activeProfile === 'Parent' && <div className="p-12 text-center font-bold text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-zinc-700">Parent calculator coming next!</div>}
+              {/* Both stay mounted (just hidden) so switching tabs doesn't wipe them */}
+              <div className={activeProfile === 'Adult' ? '' : 'hidden'}>
+                <AdultCalculator onUpdate={activeProfile === 'Adult' ? handleFinancialUpdate : noop} />
+              </div>
+              <div className={activeProfile === 'Parent' ? '' : 'hidden'}>
+                <ParentCalculator onUpdate={activeProfile === 'Parent' ? handleFinancialUpdate : noop} />
+              </div>
               {activeProfile === 'Custom' && <div className="p-12 text-center font-bold text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-zinc-700">Custom calculator coming next!</div>}
             </div>
           </section>

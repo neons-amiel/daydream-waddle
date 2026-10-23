@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ExpenseCategoryCard from './ExpenseCategoryCard';
 import SavingsInfoModal from './SavingsInfoModal';
+import { usePersistentState } from './usePersistentState';
 import { Home, Tv, Car, ShieldCheck, Info } from 'lucide-react';
 
 export default function AdultCalculator({
@@ -9,11 +10,11 @@ export default function AdultCalculator({
 }: {
   onUpdate: (income: number, expenses: number, savings: number, details?: Record<string, string>) => void
 }) {
-  const [salary, setSalary] = useState<string>('');
-  
-  // Expenses Object (Holds all keys, including dynamic custom ones)
-  const [exp, setExp] = useState<Record<string, string>>({});
-  const [savingsPercent, setSavingsPercent] = useState<number>(30);
+  // Saved to the browser (see usePersistentState.ts)
+  const [salary, setSalary] = usePersistentState<string>('adult:salary', '');
+  const [exp, setExp] = usePersistentState<Record<string, string>>('adult:expenses', {});
+  const [savingsPercent, setSavingsPercent] = usePersistentState<number>('adult:savingsPercent', 30);
+
   const [showSavingsInfo, setShowSavingsInfo] = useState<boolean>(false);
 
   const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
@@ -48,12 +49,13 @@ export default function AdultCalculator({
         </div>
         <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 p-2 rounded-2xl border-2 border-teal-200 dark:border-teal-800 focus-within:border-teal-500 transition-colors w-full md:w-auto shadow-sm">
           <span className="pl-3 font-bold text-teal-500 dark:text-teal-400 text-xl">₱</span>
-          <input 
-            type="text" 
+          <input
+            type="text"
             inputMode="numeric"
+            aria-label="Monthly net salary"
             className="w-full md:w-36 text-right p-2 bg-transparent outline-none font-black text-2xl text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
-            placeholder="0" 
-            value={salary} 
+            placeholder="0"
+            value={salary}
             onChange={handleSalaryChange}
           />
         </div>
@@ -65,7 +67,7 @@ export default function AdultCalculator({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-black text-2xl text-white">Mandatory Savings</h3>
-              <button 
+              <button
                 onClick={() => setShowSavingsInfo(true)}
                 className="p-1 rounded-full hover:bg-teal-600 dark:hover:bg-teal-800 text-teal-100 hover:text-white transition-colors"
                 aria-label="More information about Mandatory Savings"
@@ -87,8 +89,9 @@ export default function AdultCalculator({
             className="absolute inset-y-0 left-0 bg-white rounded-lg pointer-events-none"
             style={{ width: `${savingsPercent}%` }}
           />
-          <input 
+          <input
             type="range" min="0" max="100" value={savingsPercent}
+            aria-label="Savings percentage"
             onChange={(e) => setSavingsPercent(Number(e.target.value))}
             className="absolute inset-0 w-full h-3 appearance-none bg-transparent cursor-pointer outline-none
               [&::-webkit-slider-runnable-track]:bg-transparent
@@ -112,8 +115,9 @@ export default function AdultCalculator({
       {/* 3. EXPENSE CATEGORIES GRID WITH ICONS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        <ExpenseCategoryCard 
-          title="Home & Living" 
+        <ExpenseCategoryCard
+          storageKey="adult:home"
+          title="Home & Living"
           accentColor="text-orange-400"
           icon={Home}
           initialItems={[
@@ -127,8 +131,9 @@ export default function AdultCalculator({
           onChange={updateExp}
         />
 
-        <ExpenseCategoryCard 
-          title="Subscriptions" 
+        <ExpenseCategoryCard
+          storageKey="adult:subscriptions"
+          title="Subscriptions"
           accentColor="text-teal-400"
           icon={Tv}
           initialItems={[
@@ -142,8 +147,9 @@ export default function AdultCalculator({
           onChange={updateExp}
         />
 
-        <ExpenseCategoryCard 
-          title="Transportation" 
+        <ExpenseCategoryCard
+          storageKey="adult:transport"
+          title="Transportation"
           accentColor="text-blue-400"
           icon={Car}
           initialItems={[
@@ -155,8 +161,9 @@ export default function AdultCalculator({
           onChange={updateExp}
         />
 
-        <ExpenseCategoryCard 
-          title="Obligations" 
+        <ExpenseCategoryCard
+          storageKey="adult:obligations"
+          title="Obligations"
           accentColor="text-purple-400"
           icon={ShieldCheck}
           initialItems={[

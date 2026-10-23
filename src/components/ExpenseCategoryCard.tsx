@@ -1,20 +1,22 @@
 'use client'
 import React, { useState } from 'react';
 import { Plus, Trash2, ChevronDown, LucideIcon } from 'lucide-react';
+import { usePersistentState } from './usePersistentState';
 
 interface ExpenseItem {
   id: string;
   label: string;
-  value: string;
 }
 
 interface ExpenseCategoryCardProps {
   title: string;
-  accentColor: string; // now a TEXT color utility class (e.g. "text-orange-400"), applied to the icon
+  accentColor: string; // TEXT color utility class (e.g. "text-orange-400"), applied to the icon
   icon?: LucideIcon;
   initialItems: { key: string; label: string }[];
   values: Record<string, string>;
   onChange: (key: string, val: string) => void;
+  /** Unique per calculator + category, so custom rows are remembered, e.g. "adult:home" */
+  storageKey: string;
 }
 
 export default function ExpenseCategoryCard({
@@ -23,43 +25,38 @@ export default function ExpenseCategoryCard({
   icon: Icon,
   initialItems,
   values,
-  onChange
+  onChange,
+  storageKey
 }: ExpenseCategoryCardProps) {
   const [isOpen, setIsOpen] = useState(false); // Collapsed by default (accordion)
-  const [customItems, setCustomItems] = useState<ExpenseItem[]>([]);
-  const [customValues, setCustomValues] = useState<Record<string, string>>({});
+
+  // Custom row names are saved here; their amounts live in `values` under "custom_<id>"
+  const [customItems, setCustomItems] = usePersistentState<ExpenseItem[]>(`${storageKey}:custom`, []);
 
   const parseNum = (val: string) => Number(String(val).replace(/,/g, '')) || 0;
-
-  const handleCustomChange = (id: string, rawVal: string) => {
-    const numeric = rawVal.replace(/[^0-9]/g, '');
-    const formatted = numeric === '' ? '' : Number(numeric).toLocaleString('en-US');
-    setCustomValues(prev => ({ ...prev, [id]: formatted }));
-    onChange(`custom_${id}`, formatted);
-  };
-
-  const addCustomExpense = () => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setCustomItems(prev => [...prev, { id, label: 'Custom Expense', value: '' }]);
-  };
-
-  const removeCustomExpense = (id: string) => {
-    setCustomItems(prev => prev.filter(item => item.id !== id));
-    onChange(`custom_${id}`, ''); 
-  };
-
-  const updateCustomLabel = (id: string, newLabel: string) => {
-    setCustomItems(prev => prev.map(item => item.id === id ? { ...item, label: newLabel } : item));
-  };
 
   const formatInput = (raw: string) => {
     const numeric = raw.replace(/[^0-9]/g, '');
     return numeric === '' ? '' : Number(numeric).toLocaleString('en-US');
   };
 
+  const addCustomExpense = () => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setCustomItems(prev => [...prev, { id, label: 'Custom Expense' }]);
+  };
+
+  const removeCustomExpense = (id: string) => {
+    setCustomItems(prev => prev.filter(item => item.id !== id));
+    onChange(`custom_${id}`, '');
+  };
+
+  const updateCustomLabel = (id: string, newLabel: string) => {
+    setCustomItems(prev => prev.map(item => item.id === id ? { ...item, label: newLabel } : item));
+  };
+
   // --- ACCORDION SUMMARY: item count + running total for the collapsed header ---
   const presetTotal = initialItems.reduce((acc, { key }) => acc + parseNum(values[key] || ''), 0);
-  const customTotal = Object.values(customValues).reduce((acc, v) => acc + parseNum(v), 0);
+  const customTotal = customItems.reduce((acc, { id }) => acc + parseNum(values[`custom_${id}`] || ''), 0);
   const categoryTotal = presetTotal + customTotal;
   const itemCount = initialItems.length + customItems.length;
 
@@ -74,9 +71,8 @@ export default function ExpenseCategoryCard({
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3 min-w-0">
-          {/* Colored icon replaces the old accent pill - saves horizontal space */}
           {Icon && (
-            <div className="p-2 rounded-xl   flex-shrink-0">
+            <div className="p-2 rounded-xl flex-shrink-0">
               <Icon className={`w-6 h-6 ${accentColor}`} />
             </div>
           )}
@@ -98,7 +94,7 @@ export default function ExpenseCategoryCard({
         </div>
       </button>
 
-      {/* ACCORDION BODY - animated via grid-template-rows (0fr -> 1fr) + opacity for a smooth ease, not an instant pop */}
+      {/* ACCORDION BODY - animated via grid-template-rows (0fr -> 1fr) + opacity */}
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${
           isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
@@ -111,12 +107,13 @@ export default function ExpenseCategoryCard({
               {initialItems.map(({ key, label }) => (
                 <div key={key} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50">
                   <label className="text-sm font-bold text-zinc-600 dark:text-zinc-200">{label}</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     inputMode="numeric"
+                    aria-label={label}
                     className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
-                    placeholder="0" 
-                    value={values[key] || ''} 
+                    placeholder="0"
+                    value={values[key] || ''}
                     onChange={(e) => onChange(key, formatInput(e.target.value))}
                   />
                 </div>
@@ -125,16 +122,18 @@ export default function ExpenseCategoryCard({
               {/* User-Added Custom Expense Rows with Corner-Overlapping Delete Button */}
               {customItems.map((item) => (
                 <div key={item.id} className="flex justify-between items-center py-2 border-b-2 border-zinc-200 dark:border-zinc-700/50 animate-fadeIn gap-3">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={item.label}
                     onChange={(e) => updateCustomLabel(item.id, e.target.value)}
                     className="text-sm font-bold text-zinc-800 dark:text-zinc-200 bg-transparent outline-none border-b border-dashed border-zinc-400 focus:border-teal-500 flex-1 min-w-0"
                     placeholder="Expense name"
+                    aria-label="Expense name"
                   />
-                  
+
                   <div className="relative flex-shrink-0">
-                    <button 
+                    <button
+                      type="button"
                       onClick={() => removeCustomExpense(item.id)}
                       className="absolute -top-2.5 -right-2.5 z-10 bg-white dark:bg-zinc-800 text-zinc-400 hover:text-red-500 border border-zinc-200 dark:border-zinc-700 p-1 rounded-full shadow-sm transition-all hover:scale-110"
                       aria-label="Remove item"
@@ -142,13 +141,14 @@ export default function ExpenseCategoryCard({
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       inputMode="numeric"
+                      aria-label={`${item.label} amount`}
                       className="w-28 text-right p-2 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 outline-none focus:border-teal-500 font-black text-zinc-900 dark:text-white transition-colors"
-                      placeholder="0" 
-                      value={customValues[item.id] || ''}
-                      onChange={(e) => handleCustomChange(item.id, e.target.value)}
+                      placeholder="0"
+                      value={values[`custom_${item.id}`] || ''}
+                      onChange={(e) => onChange(`custom_${item.id}`, formatInput(e.target.value))}
                     />
                   </div>
                 </div>
@@ -156,7 +156,8 @@ export default function ExpenseCategoryCard({
             </div>
 
             {/* Add Expense Button */}
-            <button 
+            <button
+              type="button"
               onClick={addCustomExpense}
               className="mt-6 flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-teal-500 dark:hover:border-teal-500 text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 font-bold text-sm transition-all"
             >
