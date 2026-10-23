@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/waddle_banner.svg", 
+        url: "/LinkPreview.png", 
         width: 1200,
         height: 630,
         alt: "Daydream by Waddle PH Preview",
